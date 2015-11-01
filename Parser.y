@@ -56,6 +56,7 @@ import Scanner
     ','         { (Comma, $$) }
     ';'		{ (Semicol, $$) }
     ':'		{ (Colon, $$) }
+    '?'	        { (Qmark, $$) }
     ':='	{ (ColEq, $$) }
     '='		{ (Equals, $$) }
     BEGIN	{ (Begin, $$) }
@@ -88,6 +89,7 @@ import Scanner
     '||'	{ (Op {opName="||"},  _) }
     '!'		{ (Op {opName="!"},   _) }
 
+%right '?' ':'
 %left '||'
 %left '&&'
 %nonassoc '<' '<=' '==' '!=' '>=' '>'
@@ -173,6 +175,11 @@ expression
 	{ ExpApp {eaFun     = $2,
                   eaArgs    = [$1,$3],
                   expSrcPos = srcPos $1} }
+    | expression '?' expression ':' expression
+	{ ExpB {ebCond     = $1,
+                  ebExp1      = $3,
+                  ebExp2      = $5,
+                  expSrcPos = srcPos $1} }
 
 
 primary_expression :: { Expression }
@@ -184,6 +191,7 @@ primary_expression :: { Expression }
 	{ ExpApp {eaFun = $1, eaArgs = [$2], expSrcPos = srcPos $1}}
     | '(' expression ')'
         { $2 }
+
 
 
 -- Variables being assigned to, procedures being called, and functions being

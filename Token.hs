@@ -30,6 +30,7 @@ data Token
     | Colon	-- ^ \":\"
     | ColEq     -- ^ \":=\"
     | Equals    -- ^ \"=\"
+    | Qmark    -- ^ \"?\"
 
     -- Keywords
     | Begin	-- ^ \"begin\"

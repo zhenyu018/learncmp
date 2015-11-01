@@ -109,8 +109,9 @@ data Command
           clBody    :: Command,		-- ^ Let-body
 	  cmdSrcPos :: SrcPos
       }
+    -- | Repeat-command
     | CmdRepeat {
-          crCond    :: Expression,	-- ^ Loop-condition
+          crCond    :: Expression,	-- ^ Stop-loop-condition
           crBody    :: Command,		-- ^ Loop-body
 	  cmdSrcPos :: SrcPos
       }
@@ -137,6 +138,13 @@ data Expression
 	  eaFun     :: Expression,	-- ^ Applied function or operator
           eaArgs    :: [Expression],	-- ^ Arguments
 	  expSrcPos :: SrcPos
+      }
+    -- | Bool expression
+    | ExpB {
+	  ebCond     :: Expression,	-- ^ Conditional expression
+          ebExp1     :: Expression,	-- ^ expression 1
+          ebExp2     :: Expression,	-- ^ expression 2
+	  expSrcPos  :: SrcPos
       }
 
 
