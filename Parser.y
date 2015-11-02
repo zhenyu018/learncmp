@@ -63,6 +63,7 @@ import Scanner
     CONST	{ (Const, $$) }
     DO		{ (Do, $$) }
     ELSE	{ (Else, $$) }
+    ELSIF	{ (Elsif, $$) }
     END		{ (End, $$) }
     IF		{ (If, $$) }
     IN		{ (In, $$) }
@@ -114,8 +115,14 @@ command
         { CmdAssign {caVar = $1, caVal=$3, cmdSrcPos = srcPos $1} }
     | var_expression '(' expressions ')'
         { CmdCall {ccProc = $1, ccArgs = $3, cmdSrcPos = srcPos $1} }
+    | IF expression THEN command
+        { CmdThen {ctCond = $2, ctThen = $4, ctMyElsif = Nothing, cmdSrcPos = $1} }
+    | IF expression THEN command cmdelsif
+        { CmdThen {ctCond = $2, ctThen = $4, ctMyElsif = Just $5, cmdSrcPos = $1} }
     | IF expression THEN command ELSE command
-        { CmdIf {ciCond = $2, ciThen = $4, ciElse = $6, cmdSrcPos = $1} }
+        { CmdElse {ceCond = $2, ceThen = $4, ceMyElsif = Nothing, ceElse = $6, cmdSrcPos = $1} }
+    | IF expression THEN command cmdelsif ELSE command
+        { CmdElse {ceCond = $2, ceThen = $4, ceMyElsif = Just $5, ceElse = $7, cmdSrcPos = $1} }
     | WHILE expression DO command
         { CmdWhile {cwCond = $2, cwBody = $4, cmdSrcPos = $1} }
     | REPEAT command UNTIL expression
@@ -129,6 +136,21 @@ command
 	      CmdSeq {csCmds = $2, cmdSrcPos = srcPos $2}
 	}
 
+cmdelsifs :: { [CmdElsif]}
+cmdelsifs
+    : cmdelsif                  { [$1] }
+    | cmdelsif cmdelsifs        { $1 : $2 }
+
+cmdelsif :: { CmdElsif }
+cmdelsif
+    : ELSIF expression THEN command
+        { CmdElsif {ceiCond = $2, ceiThen = $4, cmdElsifSrcPos = $1} }
+    | cmdelsifs   
+        { if length $1 == 1 then
+	      head $1
+	  else
+	      CmdElsifSeq {cesCmds = $1}
+	}
 
 expressions :: { [Expression] }
 expressions : expression { [$1] }

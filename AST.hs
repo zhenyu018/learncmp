@@ -17,6 +17,7 @@
 module AST (
     AST (..),		-- Not abstract. Instances: HasSrcPos.
     Command (..),	-- Not abstract. Instances: HasSrcPos.
+    CmdElsif (..),	-- Not abstract. Instances: HasSrcPos.
     Expression (..),	-- Not abstract. Instances: HasSrcPos.
     Declaration (..),	-- Not abstract. Instances: HasSrcPos.
     TypeDenoter (..)	-- Not abstract. Instances: HasSrcPos.
@@ -90,11 +91,19 @@ data Command
           csCmds    :: [Command],	-- ^ Commands
           cmdSrcPos :: SrcPos
       }
-    -- | Conditional command
-    | CmdIf {
-	  ciCond    :: Expression,	-- ^ Condition
-	  ciThen    :: Command,		-- ^ Then-branch
-	  ciElse    :: Command,		-- ^ Else-branch
+    -- | If no else
+    | CmdThen {
+	  ctCond    :: Expression,	-- ^ Condition
+	  ctThen    :: Command,		-- ^ Then-branch
+          ctMyElsif :: Maybe CmdElsif,-- ^ Elsif-branch
+          cmdSrcPos :: SrcPos
+      }
+    -- | If then else
+    | CmdElse {
+	  ceCond    :: Expression,	-- ^ Condition
+	  ceThen    :: Command,		-- ^ Then-branch
+          ceMyElsif :: Maybe CmdElsif,-- ^ Elsif-branch
+	  ceElse    :: Command,		-- ^ Else-branch
           cmdSrcPos :: SrcPos
       }
     -- | While-loop
@@ -120,6 +129,20 @@ data Command
 instance HasSrcPos Command where
     srcPos = cmdSrcPos
 
+-- | Abstract syntax for the syntactic category CmdElsif
+data CmdElsif
+    = CmdElsif {
+          ceiCond   :: Expression,	-- ^ Condition
+	  ceiThen   :: Command,		-- ^ Then-branch
+          cmdElsifSrcPos :: SrcPos
+      }
+    | CmdElsifSeq {
+          cesCmds   :: [CmdElsif],      -- ^ Elsifs
+          cmdELsifSrcPos :: SrcPos
+    }
+    
+instance HasSrcPos CmdElsif where
+    srcPos = cmdElsifSrcPos
 
 -- | Abstract syntax for the syntactic category Expression
 data Expression
