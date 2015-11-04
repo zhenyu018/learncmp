@@ -92,6 +92,7 @@ scanner cont = P $ scan
         scan l c ('\n' : s) = scan (l + 1) 1 s
 	scan l c ('\r' : s) = scan l 1 s
         scan l c ('\t' : s) = scan l (nextTabStop c) s
+        scan l c ('\'' : s) = scanLitChar l c s
         scan l c (' ' : s)  = scan l (c + 1) s
         scan l c ('/' : '/' : s) = scan l c (dropWhile (/='\n') s)
         -- Scan graphical tokens
@@ -117,6 +118,29 @@ scanner cont = P $ scan
             where
                 (tail, s') = span isDigit s
                 c'         = c + 1 + length tail
+
+        -- scanLitChar :: Int -> Int -> String -> D a
+        scanLitChar l c ('\\' : x : '\'' :xs) = retTkn (mkChar x) l c (c+4) xs
+        
+        scanLitChar l c (x : '\'' :xs)        = retTkn (mkChar x) l c (c+3) xs
+        
+        scanLitChar l c (x :xs)               = do
+				           emitErrD (SrcPos l c)
+                                                    ("Lexical error: Illegal \
+                                                     \character "
+                                                     ++ show x
+                                                     ++ " (discarded)")
+                                           scan l (c + 1) xs
+
+        mkChar :: Char -> Token
+        mkChar 'n' = LitChar {lchVal = '\n'}
+        mkChar 'r' = LitChar {lchVal = '\r'}
+        mkChar 't'= LitChar {lchVal = '\t'}
+        mkChar '\\' = LitChar {lchVal = '\\'}
+        mkChar '\'' = LitChar {lchVal = '\''}
+        mkChar char = LitChar {lchVal = char}
+        
+        
 
         -- Allows multi-character operators.
         -- scanOperator :: Int -> Int -> Char -> String -> D a

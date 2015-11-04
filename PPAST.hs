@@ -92,6 +92,8 @@ ppCmdElsif n (CmdElsifSeq {cesCmds = ces, cmdELsifSrcPos = csp}) =
 ppExpression :: Int -> Expression -> ShowS
 ppExpression n (ExpLitInt {eliVal = v}) = 
     indent n . showString "ExpLitInt". spc . shows v . nl
+ppExpression n (ExpLitChar {elchVal = v}) = 
+    indent n . showString "ExpLitChar". spc . shows v . nl
 ppExpression n (ExpVar {evVar = v}) =
     indent n . showString "ExpVar" . spc . ppName v . nl
 ppExpression n (ExpApp {eaFun = f, eaArgs = es, expSrcPos = sp}) =

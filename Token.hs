@@ -30,7 +30,9 @@ data Token
     | Colon	-- ^ \":\"
     | ColEq     -- ^ \":=\"
     | Equals    -- ^ \"=\"
-    | Qmark    -- ^ \"?\"
+    | Qmark     -- ^ \"?\"
+
+
 
     -- Keywords
     | Begin	-- ^ \"begin\"
@@ -49,6 +51,7 @@ data Token
     | Elsif	-- ^ \"elsif\"
     -- Tokens with variable spellings
     | LitInt {liVal :: Integer}		-- ^ Integer literals
+    | LitChar{lchVal :: Char}		-- ^ Integer literals
     | Id     {idName :: Name}		-- ^ Identifiers
     | Op     {opName :: Name}		-- ^ Operators
 
